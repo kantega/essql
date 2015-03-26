@@ -1,8 +1,8 @@
 package essql;
 
-import java.util.concurrent.CompletionStage;
+import no.kantega.concurrent.Async;
 
 public abstract class Transactor {
 
-    public abstract <A> CompletionStage<A> transact(DbAction<A> dbAction);
+    public abstract <A> Async<A> transact(DbAction<A> dbAction);
 }

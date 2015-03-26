@@ -61,11 +61,10 @@ public class Example {
                         .query( comp( string, num, channelAtom, User::new ) );
 
         tx.transact( createTable )
-                .thenCompose( r -> tx.transact( addLeif ) )
-                .thenCompose( rr -> tx.transact( users ) )
-                .thenApply( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
-                .exceptionally( Throwable::getMessage )
-                .thenAccept( System.out::println );
+                .flatMap( r -> tx.transact( addLeif ) )
+                .flatMap( rr -> tx.transact( users ) )
+                .map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
+                .execute( System.out::println );
 
 
 

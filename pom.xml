@@ -7,7 +7,10 @@
     <groupId>no.kantega</groupId>
     <artifactId>essql</artifactId>
     <version>1.0-SNAPSHOT</version>
-
+    <scm>
+        <connection>scm:git:git@github.com:kantega/essql.git</connection>
+        <tag>niagara-core-1.0-SNAPSHOT</tag>
+    </scm>
     <dependencies>
         <dependency>
             <groupId>org.functionaljava</groupId>
@@ -18,6 +21,11 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>2.3.5</version>
+        </dependency>
+        <dependency>
+            <groupId>no.kantega</groupId>
+            <artifactId>better</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
