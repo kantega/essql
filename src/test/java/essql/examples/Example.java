@@ -63,8 +63,8 @@ public class Example {
         tx.transact( createTable )
                 .thenCompose( r -> tx.transact( addLeif ) )
                 .thenCompose( rr -> tx.transact( users ) )
-                .thenApply( (List list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
-                .exceptionally( t -> Util.<Throwable>throwableShow().showS( t ) )
+                .thenApply( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
+                .exceptionally( Throwable::getMessage )
                 .thenAccept( System.out::println );
 
 
