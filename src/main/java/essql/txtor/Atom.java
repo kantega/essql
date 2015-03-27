@@ -1,4 +1,4 @@
-package essql;
+package essql.txtor;
 
 import fj.F;
 import fj.Try;

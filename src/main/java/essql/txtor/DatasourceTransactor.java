@@ -1,5 +1,6 @@
-package essql;
+package essql.txtor;
 
+import essql.Util;
 import fj.data.NonEmptyList;
 import fj.data.Validation;
 import no.kantega.concurrent.Async;

@@ -1,13 +1,13 @@
 package essql;
 
+import essql.txtor.Atom;
+import essql.txtor.Index;
 import fj.*;
 import fj.data.NonEmptyList;
 import fj.data.Validation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import static essql.Index.Index;
 
 public class Composite<A> {
 
@@ -29,7 +29,7 @@ public class Composite<A> {
     }
 
     public static <A, B> Composite<P2<A, B>> comp(Atom<A> a, Atom<B> b) {
-        return Composite.<P2<A, B>>composite( rs -> a.read( rs, Index( 1 ) ).nel().accumulate( sqlExNelsg, b.read( rs, Index( 2 ) ).nel(), Products::tuple2 ) );
+        return Composite.<P2<A, B>>composite( rs -> a.read( rs, Index.Index( 1 ) ).nel().accumulate( sqlExNelsg, b.read( rs, Index.Index( 2 ) ).nel(), Products::tuple2 ) );
     }
 
     public static <A, B, C> Composite<C> comp(Atom<A> a, Atom<B> b, F2<A, B, C> f) {
@@ -37,7 +37,7 @@ public class Composite<A> {
     }
 
     public static <A, B, C> Composite<P3<A, B, C>> comp(Atom<A> a, Atom<B> b, Atom<C> c) {
-        return Composite.<P3<A, B, C>>composite( rs -> a.read( rs, Index( 1 ) ).nel().accumulate( sqlExNelsg, b.read( rs, Index( 2 ) ).nel(), c.read( rs, Index( 3 ) ).nel(), Products::tuple3 ) );
+        return Composite.<P3<A, B, C>>composite( rs -> a.read( rs, Index.Index( 1 ) ).nel().accumulate( sqlExNelsg, b.read( rs, Index.Index( 2 ) ).nel(), c.read( rs, Index.Index( 3 ) ).nel(), Products::tuple3 ) );
     }
 
     public static <A, B, C, D> Composite<D> comp(Atom<A> a, Atom<B> b, Atom<C> c, F3<A, B, C, D> f) {
@@ -45,7 +45,7 @@ public class Composite<A> {
     }
 
     public static <A, B, C, D> Composite<P4<A, B, C, D>> comp(Atom<A> a, Atom<B> b, Atom<C> c, Atom<D> d) {
-        return Composite.<P4<A, B, C, D>>composite( rs -> a.read( rs, Index( 1 ) ).nel().accumulate( sqlExNelsg, b.read( rs, Index( 2 ) ).nel(), c.read( rs, Index( 3 ) ).nel(), d.read( rs, Index( 4 ) ).nel(), Products::tuple4 ) );
+        return Composite.<P4<A, B, C, D>>composite( rs -> a.read( rs, Index.Index( 1 ) ).nel().accumulate( sqlExNelsg, b.read( rs, Index.Index( 2 ) ).nel(), c.read( rs, Index.Index( 3 ) ).nel(), d.read( rs, Index.Index( 4 ) ).nel(), Products::tuple4 ) );
     }
 
     public <B> Composite<B> map(F<A, B> g) {

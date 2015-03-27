@@ -2,17 +2,21 @@ package essql.examples;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import essql.*;
+import essql.Util;
 import essql.examples.User.Channel;
+import essql.txtor.Atom;
+import essql.txtor.DatasourceTransactor;
+import essql.txtor.DbAction;
 import fj.Show;
 import fj.data.List;
 import fj.data.Stream;
 import org.apache.commons.lang3.StringUtils;
 
-import static essql.Atom.*;
-import static essql.Composite.*;
+import static essql.Composite.comp;
 import static essql.examples.User.Channel.email;
 import static essql.examples.User.Channel.phone;
+import static essql.txtor.Atom.num;
+import static essql.txtor.Atom.string;
 import static fj.data.List.list;
 
 public class Example {
@@ -41,7 +45,7 @@ public class Example {
         User leif = new User( "Leif Haraldson", 34, list( email( "leif@tesgin.com" ), phone( "+47 30 24 04 55" ) ) );
 
 
-        DbAction<Integer> createTable = Query.prepare(
+        DbAction<Integer> createTable = DbAction.prepare(
                 "create table user(" +
                         "id int auto_increment not null," +
                         "name varchar(255) not null," +
@@ -52,12 +56,12 @@ public class Example {
 
 
         DbAction<Integer> addLeif =
-                Query
+                DbAction
                         .prepare( "INSERT INTO user (name,age,channels) VALUES (?,?,?)", string.set( leif.name ), num.set( leif.age ), channelAtom.set( leif.channels ) )
                         .update();
 
         DbAction<List<User>> users =
-                Query.prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
+                DbAction.prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
                         .query( comp( string, num, channelAtom, User::new ) );
 
         tx.transact( createTable )
