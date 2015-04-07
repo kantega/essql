@@ -3,7 +3,7 @@ package essql.txtor;
 import essql.Util;
 import fj.data.NonEmptyList;
 import fj.data.Validation;
-import no.kantega.concurrent.Async;
+import no.kantega.concurrent.Task;
 import no.kantega.effect.Tried;
 
 import javax.sql.DataSource;
@@ -19,8 +19,8 @@ public class DatasourceTransactor extends Transactor {
         this.ds = ds;
     }
 
-    @Override public <A> Async<A> transact(DbAction<A> dbAction) {
-        return Async.async( resolver -> {
+    @Override public <A> Task<A> transact(DbAction<A> dbAction) {
+        return Task.async( resolver -> {
             try {
 
                 Connection c = ds.getConnection();
