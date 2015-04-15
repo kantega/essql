@@ -48,6 +48,26 @@ public class Composite<A> {
         return Composite.<P4<A, B, C, D>>composite( rs -> a.read( rs, Index.Index( 1 ) ).nel().accumulate( sqlExNelsg, b.read( rs, Index.Index( 2 ) ).nel(), c.read( rs, Index.Index( 3 ) ).nel(), d.read( rs, Index.Index( 4 ) ).nel(), Products::tuple4 ) );
     }
 
+    public static <A, B, C, D, E> Composite<E> comp(Atom<A> a, Atom<B> b, Atom<C> c, Atom<D> d, F4<A, B, C, D, E> f) {
+        return comp( a, b, c, d ).map( t -> f.f( t._1(), t._2(), t._3(), t._4() ) );
+    }
+
+    public static <A, B, C, D, E> Composite<P5<A, B, C, D, E>> comp(Atom<A> a, Atom<B> b, Atom<C> c, Atom<D> d, Atom<E> e) {
+        return Composite.<P5<A, B, C, D, E>>composite( rs -> a.read( rs, Index.Index( 1 ) ).nel().accumulate( sqlExNelsg, b.read( rs, Index.Index( 2 ) ).nel(), c.read( rs, Index.Index( 3 ) ).nel(), d.read( rs, Index.Index( 4 ) ).nel(), e.read( rs, Index.Index( 5 ) ).nel(), Products::tuple5 ) );
+    }
+
+    public static <A, B, C, D, E, FF> Composite<FF> comp(Atom<A> a, Atom<B> b, Atom<C> c, Atom<D> d, Atom<E> e, F5<A, B, C, D, E, FF> f) {
+        return comp( a, b, c, d, e ).map( t -> f.f( t._1(), t._2(), t._3(), t._4(), t._5() ) );
+    }
+
+    public static <A, B, C, D, E, FF> Composite<P6<A, B, C, D, E, FF>> comp(Atom<A> a, Atom<B> b, Atom<C> c, Atom<D> d, Atom<E> e, Atom<FF> ff) {
+        return Composite.<P6<A, B, C, D, E, FF>>composite( rs -> a.read( rs, Index.Index( 1 ) ).nel().accumulate( sqlExNelsg, b.read( rs, Index.Index( 2 ) ).nel(), c.read( rs, Index.Index( 3 ) ).nel(), d.read( rs, Index.Index( 4 ) ).nel(), e.read( rs, Index.Index( 5 ) ).nel(), ff.read( rs, Index.Index( 6 ) ).nel(), Products::tuple6 ) );
+    }
+
+    public static <A, B, C, D, E, FF, G> Composite<G> comp(Atom<A> a, Atom<B> b, Atom<C> c, Atom<D> d, Atom<E> e, Atom<FF> ff, F6<A, B, C, D, E, FF, G> f) {
+        return comp( a, b, c, d, e, ff ).map( t -> f.f( t._1(), t._2(), t._3(), t._4(), t._5(), t._6() ) );
+    }
+
     public <B> Composite<B> map(F<A, B> g) {
         return new Composite<B>( Function.andThen( f, v -> v.map( g ) ) );
     }
