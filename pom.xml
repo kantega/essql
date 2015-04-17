@@ -21,6 +21,7 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>2.3.5</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>no.kantega</groupId>
