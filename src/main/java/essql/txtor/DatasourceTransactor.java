@@ -24,19 +24,24 @@ public class DatasourceTransactor extends Transactor {
             try {
 
                 Connection c = ds.getConnection();
-                c.setAutoCommit( false );
-                Savepoint sp = c.setSavepoint();
-                Validation<NonEmptyList<SQLException>, A> v =
-                        dbAction.run( c );
+                try {
+                    c.setAutoCommit( false );
+                    Savepoint sp = c.setSavepoint();
+                    Validation<NonEmptyList<SQLException>, A> v =
+                            dbAction.run( c );
 
-                if (v.isFail()) {
-                    c.rollback( sp );
-                    resolver.resolve( Tried.fail( new Exception( Util.mkString( Util.<SQLException>throwableShow(), v.fail().toList(), ", " ) ) ) );
+                    if (v.isFail()) {
+                        c.rollback( sp );
+                        resolver.resolve( Tried.fail( new Exception( Util.mkString( Util.<SQLException>throwableShow(), v.fail().toList(), ", " ) ) ) );
+                    }
+                    else {
+                        c.commit();
+                        resolver.resolve( Tried.value( v.success() ) );
+                    }
+                } finally {
+                    c.close();
                 }
-                else {
-                    c.commit();
-                    resolver.resolve( Tried.value( v.success() ) );
-                }
+
             } catch (SQLException e) {
                 resolver.resolve( Tried.fail( e ) );
             }
