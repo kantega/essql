@@ -20,17 +20,17 @@ import java.util.ArrayList;
 public abstract class DbAction<A> {
 
 
-    public static <A> DbAction<A> db(Try1<Connection, A, SQLException> f) {
+    public static <A> DbAction<A> db(Try1<Connection, A, Exception> f) {
         return new DbAction<A>() {
-            @Override public Validation<NonEmptyList<SQLException>, A> run(Connection c) {
+            @Override public Validation<NonEmptyList<Exception>, A> run(Connection c) {
                 return Try.f( f ).f( c ).nel();
             }
         };
     }
 
-    public static <A> DbAction<A> dbV(F<Connection, Validation<NonEmptyList<SQLException>, A>> f) {
+    public static <A> DbAction<A> dbV(F<Connection, Validation<NonEmptyList<Exception>, A>> f) {
         return new DbAction<A>() {
-            @Override public Validation<NonEmptyList<SQLException>, A> run(Connection c) {
+            @Override public Validation<NonEmptyList<Exception>, A> run(Connection c) {
                 return f.f( c );
             }
         };
@@ -48,12 +48,12 @@ public abstract class DbAction<A> {
         return stmt;
     }
 
-    public abstract Validation<NonEmptyList<SQLException>, A> run(Connection c);
+    public abstract Validation<NonEmptyList<Exception>, A> run(Connection c);
 
 
     public <B> DbAction<B> map(F<A, B> f) {
         return new DbAction<B>() {
-            @Override public Validation<NonEmptyList<SQLException>, B> run(Connection c) {
+            @Override public Validation<NonEmptyList<Exception>, B> run(Connection c) {
                 return DbAction.this.run( c ).map( f );
             }
         };
@@ -61,8 +61,8 @@ public abstract class DbAction<A> {
 
     public <B> DbAction<B> bind(F<A, DbAction<B>> f) {
         return new DbAction<B>() {
-            @Override public Validation<NonEmptyList<SQLException>, B> run(Connection c) {
-                Validation<NonEmptyList<SQLException>, DbAction<B>> v = DbAction.this.run( c ).map( f );
+            @Override public Validation<NonEmptyList<Exception>, B> run(Connection c) {
+                Validation<NonEmptyList<Exception>, DbAction<B>> v = DbAction.this.run( c ).map( f );
                 return v.bind( dbB -> dbB.run( c ) );
             }
         };
@@ -93,11 +93,10 @@ public abstract class DbAction<A> {
                 try {
                     ResultSet rs = setParams( connx.prepareStatement( sql ), params ).executeQuery();
 
-
                     ArrayList<A> array = new ArrayList<>();
-                    ArrayList<SQLException> failures = new ArrayList<>();
+                    ArrayList<Exception> failures = new ArrayList<>();
                     while (rs.next()) {
-                        Validation<NonEmptyList<SQLException>, A> v = comp.read( rs );
+                        Validation<NonEmptyList<Exception>, A> v = comp.read( rs );
                         if (v.isFail())
                             failures.addAll( v.fail().toCollection() );
                         else
@@ -107,16 +106,14 @@ public abstract class DbAction<A> {
                     if (failures.isEmpty())
                         return Validation.success( Java.<A>ArrayList_List().f( array ) );
                     else {
-                        SQLException head = failures.remove( 0 );
-                        return Validation.fail( NonEmptyList.nel( head, Java.<SQLException>ArrayList_List().f( failures ) ) );
+                        Exception head = failures.remove( 0 );
+                        return Validation.fail( NonEmptyList.nel( head, Java.<Exception>ArrayList_List().f( failures ) ) );
                     }
-                } catch (SQLException e) {
-                    return Validation.<SQLException, List<A>>fail( e ).nel();
+                } catch (Exception e) {
+                    return Validation.<Exception, List<A>>fail( e ).nel();
                 }
 
             } );
         }
-
-
     }
 }

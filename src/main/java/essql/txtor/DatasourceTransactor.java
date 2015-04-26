@@ -27,12 +27,12 @@ public class DatasourceTransactor extends Transactor {
                 try {
                     c.setAutoCommit( false );
                     Savepoint sp = c.setSavepoint();
-                    Validation<NonEmptyList<SQLException>, A> v =
+                    Validation<NonEmptyList<Exception>, A> v =
                             dbAction.run( c );
 
                     if (v.isFail()) {
                         c.rollback( sp );
-                        resolver.resolve( Tried.fail( new Exception( Util.mkString( Util.<SQLException>throwableShow(), v.fail().toList(), ", " ) ) ) );
+                        resolver.resolve( Tried.fail( new Exception( Util.mkString( Util.<Exception>throwableShow(), v.fail().toList(), ", " ) ) ) );
                     }
                     else {
                         c.commit();

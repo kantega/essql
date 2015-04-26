@@ -14,13 +14,13 @@ import java.sql.SQLException;
 
 public class Atom<A> {
 
-    private final TryEffect3<A, PreparedStatement, Index, SQLException> setParam;
+    private final TryEffect3<A, PreparedStatement, Index, Exception> setParam;
 
-    private final Try2<ResultSet, Index, A, SQLException> read;
+    private final Try2<ResultSet, Index, A, Exception> read;
 
     public Atom(
-            TryEffect3<A, PreparedStatement, Index, SQLException> f,
-            Try2<ResultSet, Index, A, SQLException> read) {
+            TryEffect3<A, PreparedStatement, Index, Exception> f,
+            Try2<ResultSet, Index, A, Exception> read) {
         this.setParam = f;
         this.read = read;
     }
@@ -36,7 +36,7 @@ public class Atom<A> {
                     (a, stmt, index) -> stmt.setInt( index.value, a ), (rs, index) -> rs.getInt( index.value ) );
 
 
-    public Validation<SQLException, A> read(ResultSet rs, Index index) {
+    public Validation<Exception, A> read(ResultSet rs, Index index) {
         return Try.f( read ).f( rs, index );
     }
 
@@ -50,7 +50,7 @@ public class Atom<A> {
 
     public static interface SetParam {
 
-        public Validation<SQLException, Unit> set(PreparedStatement stmt, Index index);
+        public Validation<Exception, Unit> set(PreparedStatement stmt, Index index);
 
     }
 }

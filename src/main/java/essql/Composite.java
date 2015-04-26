@@ -7,7 +7,6 @@ import fj.data.NonEmptyList;
 import fj.data.Validation;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import static essql.Products.*;
 import static fj.P.*;
@@ -15,13 +14,13 @@ import static fj.P2.*;
 
 public class Composite<A> {
 
-    final F2<ResultSet, Index, Validation<NonEmptyList<SQLException>, P2<A, Index>>> f;
+    final F2<ResultSet, Index, Validation<NonEmptyList<Exception>, P2<A, Index>>> f;
 
-    protected Composite(F2<ResultSet, Index, Validation<NonEmptyList<SQLException>, P2<A, Index>>> f) {
+    protected Composite(F2<ResultSet, Index, Validation<NonEmptyList<Exception>, P2<A, Index>>> f) {
         this.f = f;
     }
 
-    public static <A> Composite<A> composite(F2<ResultSet, Index, Validation<NonEmptyList<SQLException>, P2<A, Index>>> f) {
+    public static <A> Composite<A> composite(F2<ResultSet, Index, Validation<NonEmptyList<Exception>, P2<A, Index>>> f) {
         return new Composite<>( f );
     }
 
@@ -83,7 +82,7 @@ public class Composite<A> {
                 this.f.f( rs, index ).bind( (aAndIndex) -> g.f( aAndIndex._1() ).f.f( rs, aAndIndex._2() ) ) );
     }
 
-    public Validation<NonEmptyList<SQLException>, A> read(ResultSet rs) {
+    public Validation<NonEmptyList<Exception>, A> read(ResultSet rs) {
         return f.f( rs, Index.Index( 0 ) ).map( __1() );
     }
 

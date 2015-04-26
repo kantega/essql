@@ -2,6 +2,7 @@ package essql.examples;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import essql.Composite;
 import essql.Util;
 import essql.examples.User.Channel;
 import essql.txtor.Atom;
@@ -10,6 +11,7 @@ import essql.txtor.DbAction;
 import fj.Show;
 import fj.data.List;
 import fj.data.Stream;
+import no.kantega.effect.Tried;
 import org.apache.commons.lang3.StringUtils;
 
 import static essql.Composite.comp;
@@ -36,6 +38,8 @@ public class Example {
 
         DatasourceTransactor tx = new DatasourceTransactor( ds );
 
+        Show<Tried<?>> triedShow =
+                Show.stringShow.comap( (Tried<?> tried) -> tried.fold( Throwable::getMessage, Object::toString ) );
 
         Atom<List<Channel>> channelAtom =
                 string.xmap(
@@ -46,12 +50,12 @@ public class Example {
 
 
         DbAction<Integer> createTable = DbAction.prepare(
-                "create table user(" +
-                        "id int auto_increment not null," +
-                        "name varchar(255) not null," +
-                        "channels text not null," +
-                        "age int not null," +
-                        "primary key(id)" +
+                "CREATE TABLE user(" +
+                        "id INT AUTO_INCREMENT NOT NULL," +
+                        "name VARCHAR(255) NOT NULL," +
+                        "channels TEXT NOT NULL," +
+                        "age INT NOT NULL," +
+                        "PRIMARY KEY(id)" +
                         ")" ).update();
 
 
@@ -60,17 +64,33 @@ public class Example {
                         .prepare( "INSERT INTO user (name,age,channels) VALUES (?,?,?)", string.set( leif.name ), num.set( leif.age ), channelAtom.set( leif.channels ) )
                         .update();
 
-        DbAction<List<User>> users =
+        DbAction<List<User>> getUsers =
                 DbAction.prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
                         .query( comp( string, num, channelAtom, User::new ) );
 
         tx.transact( createTable )
                 .flatMap( r -> tx.transact( addLeif ) )
-                .flatMap( rr -> tx.transact( users ) )
+                .flatMap( rr -> tx.transact( getUsers ) )
                 .map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
-                .execute( System.out::println );
+                .execute( triedShow::println );
 
 
+        Composite<User> userComp =
+                comp( Atom.string ).flatMap(
+                        name -> comp( Atom.num ).flatMap(
+                                age -> comp( channelAtom ).map(
+                                        channels -> new User( name, age, channels )
+                                )
+                        )
+                );
+
+        DbAction<List<User>> getUsersWithComp =
+                DbAction.prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
+                        .query( userComp );
+
+        tx.transact( getUsersWithComp )
+                .map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
+                .execute(  triedShow::println );
 
     }
 
