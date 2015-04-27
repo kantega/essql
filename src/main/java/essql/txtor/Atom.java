@@ -11,6 +11,8 @@ import fj.function.TryEffect3;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 public class Atom<A> {
 
@@ -33,8 +35,14 @@ public class Atom<A> {
 
     public static Atom<Integer> num =
             new Atom<>(
-                    (a, stmt, index) -> stmt.setInt( index.value, a ), (rs, index) -> rs.getInt( index.value ) );
+                    (a, stmt, index) -> stmt.setInt( index.value, a ),
+                    (rs, index) -> rs.getInt( index.value ) );
 
+
+    public static Atom<Instant> timestamp =
+            new Atom<>(
+                    (a, stmt, index) -> stmt.setTimestamp( index.value, new Timestamp( a.toEpochMilli() ) ),
+                    (rs, index) -> rs.getTimestamp( index.value ).toInstant() );
 
     public Validation<Exception, A> read(ResultSet rs, Index index) {
         return Try.f( read ).f( rs, index );

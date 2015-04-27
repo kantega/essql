@@ -21,7 +21,7 @@ public class Util {
     }
 
     public static <A extends Throwable> Show<A> throwableShow() {
-        return Show.showS( t -> t.getMessage() );
+        return Show.showS( Throwable::getMessage );
     }
 
     public static <A> Show<A> reflectionShow(){
