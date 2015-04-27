@@ -4,6 +4,7 @@ import fj.F;
 import fj.Try;
 import fj.TryEffect;
 import fj.Unit;
+import fj.data.Option;
 import fj.data.Validation;
 import fj.function.Try2;
 import fj.function.TryEffect3;
@@ -43,6 +44,22 @@ public class Atom<A> {
             new Atom<>(
                     (a, stmt, index) -> stmt.setTimestamp( index.value, new Timestamp( a.toEpochMilli() ) ),
                     (rs, index) -> rs.getTimestamp( index.value ).toInstant() );
+
+    public static <A> Atom<Option<A>> optional(Atom<A> atom) {
+        return new Atom<>(
+                (Option<A> maybeA, PreparedStatement stmt, Index index) -> {
+                    if (maybeA.isSome())
+                        atom.setParam.f( maybeA.some(), stmt, index );
+                },
+                (ResultSet rs, Index index) -> {
+                    if (rs.getObject( index.getValue() ) != null) {
+                        return Option.some( atom.read.f( rs, index ) );
+                    }
+                    else
+                        return Option.none();
+
+                } );
+    }
 
     public Validation<Exception, A> read(ResultSet rs, Index index) {
         return Try.f( read ).f( rs, index );

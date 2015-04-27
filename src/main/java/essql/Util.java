@@ -21,11 +21,11 @@ public class Util {
     }
 
     public static <A extends Throwable> Show<A> throwableShow() {
-        return Show.showS( Throwable::getMessage );
+        return Show.showS( t -> t.getMessage() == null ? "N/A" : t.getMessage() );
     }
 
-    public static <A> Show<A> reflectionShow(){
-        return Show.showS(t-> ToStringBuilder.reflectionToString( t, ToStringStyle.NO_FIELD_NAMES_STYLE ));
+    public static <A> Show<A> reflectionShow() {
+        return Show.showS( t -> ToStringBuilder.reflectionToString( t, ToStringStyle.NO_FIELD_NAMES_STYLE ) );
     }
 
 }
