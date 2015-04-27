@@ -32,7 +32,7 @@ public class DatasourceTransactor extends Transactor {
 
                     if (v.isFail()) {
                         c.rollback( sp );
-                        resolver.resolve( Tried.fail( new Exception( Util.mkString( Util.<Exception>throwableShow(), v.fail().toList(), ", " ),v.fail().head ) ) );
+                        resolver.resolve( Tried.fail( new Exception( Util.mkString( Util.<Exception>throwableShow(), v.fail().toList(), ", " ), v.fail().head ) ) );
                     }
                     else {
                         c.commit();
