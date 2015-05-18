@@ -9,6 +9,7 @@ import essql.txtor.Atom;
 import essql.txtor.DatasourceTransactor;
 import essql.txtor.DbAction;
 import fj.Show;
+import fj.Unit;
 import fj.data.List;
 import fj.data.Stream;
 import no.kantega.effect.Tried;
@@ -90,7 +91,18 @@ public class Example {
 
         tx.transact( getUsersWithComp )
                 .map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
-                .execute(  triedShow::println );
+                .execute( triedShow::println );
+
+
+        DbAction<Unit> updateUser =
+                DbAction.prepare( "UPDATE user SET age = 35 WHERE age = 34",Atom.string.set( "Bjarne" ) ).update().drain();
+
+
+        tx.transact( updateUser.bind(x->getUsersWithComp )).map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
+                .execute( triedShow::println );
+
+
+
 
     }
 

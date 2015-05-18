@@ -40,6 +40,12 @@ public class Atom<A> {
                     (rs, index) -> rs.getInt( index.value ) );
 
 
+    public static <A> Atom<Option<A>> maybe(Atom<A> aAtom){
+        return new Atom<>(
+                (maybeA, stmt, index) -> maybeA.foreachDoEffect( aAtom::set ),
+                (rs, index) -> rs.wasNull() ? Option.<A>none() : Option.fromNull( aAtom.read.f( rs, index ) ) );
+    }
+
     public static Atom<Instant> timestamp =
             new Atom<>(
                     (a, stmt, index) -> stmt.setTimestamp( index.value, new Timestamp( a.toEpochMilli() ) ),
