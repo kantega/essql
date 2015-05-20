@@ -88,8 +88,33 @@ public abstract class DbAction<A> {
             return DbAction.db( connx -> setParams( connx.prepareStatement( sql ), params ).executeUpdate() );
         }
 
-        public <A> DbAction<List<A>> query(F<ResultSet,A> mapper){
+        public <A> DbAction<List<A>> query(F<ResultSet, A> mapper) {
+            return DbAction.dbV( connx -> {
+                try {
+                    ResultSet rs = setParams( connx.prepareStatement( sql ), params ).executeQuery();
 
+                    ArrayList<A> array = new ArrayList<>();
+                    ArrayList<Exception> failures = new ArrayList<>();
+                    while (rs.next()) {
+                        try {
+                            A a = mapper.f( rs );
+                            array.add( a );
+                        } catch (Exception e) {
+                            failures.add( e );
+                        }
+                    }
+
+                    if (failures.isEmpty())
+                        return Validation.success( Java.<A>ArrayList_List().f( array ) );
+                    else {
+                        Exception head = failures.remove( 0 );
+                        return Validation.fail( NonEmptyList.nel( head, Java.<Exception>ArrayList_List().f( failures ) ) );
+                    }
+                } catch (Exception e) {
+                    return Validation.<Exception, List<A>>fail( e ).nel();
+                }
+
+            } );
         }
 
         public <A> DbAction<List<A>> query(Composite<A> comp) {
