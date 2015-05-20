@@ -88,7 +88,7 @@ public abstract class DbAction<A> {
             return DbAction.db( connx -> setParams( connx.prepareStatement( sql ), params ).executeUpdate() );
         }
 
-        public <A> DbAction<List<A>> query(F<ResultSet, A> mapper) {
+        public <A> DbAction<List<A>> query(Try1<ResultSet, A,Exception> mapper) {
             return DbAction.dbV( connx -> {
                 try {
                     ResultSet rs = setParams( connx.prepareStatement( sql ), params ).executeQuery();

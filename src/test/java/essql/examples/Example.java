@@ -3,6 +3,7 @@ package essql.examples;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import essql.Composite;
+import essql.Field;
 import essql.Util;
 import essql.examples.User.Channel;
 import essql.txtor.Atom;
@@ -95,15 +96,40 @@ public class Example {
 
 
         DbAction<Unit> updateUser =
-                DbAction.prepare( "UPDATE user SET age = 35 WHERE age = 34",Atom.string.set( "Bjarne" ) ).update().drain();
+                DbAction.prepare( "UPDATE user SET age = 35 WHERE age = 34", Atom.string.set( "Bjarne" ) ).update().drain();
 
 
-        tx.transact( updateUser.bind(x->getUsersWithComp )).map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
+        tx.transact( updateUser.bind( x -> getUsersWithComp ) ).map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
                 .execute( triedShow::println );
 
 
+        DbAction<List<User>> getUserWithMaualMapping =
+                DbAction
+                        .prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
+                        .query( rs -> {
+                            String name = Field.readField( "name", Atom.string, rs );
+                            int age = Field.readField( "age", Atom.num, rs );
+                            List<Channel> channels = Field.readField( "channels", channelAtom, rs );
+                            return new User( name, age, channels );
+                        } );
 
+        tx.transact( getUserWithMaualMapping )
+                .map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
+                .execute( triedShow::println );
 
+        DbAction<List<User>> faileingGetUserWithMaualMapping =
+                DbAction
+                        .prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
+                        .query( rs -> {
+                            String name = Field.readField( "name", Atom.string, rs );
+                            int age = Field.readField( "name", Atom.num, rs );
+                            List<Channel> channels = Field.readField( "channels", channelAtom, rs );
+                            return new User( name, age, channels );
+                        } );
+
+        tx.transact( faileingGetUserWithMaualMapping )
+                .map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
+                .execute( triedShow::println );
     }
 
 }
