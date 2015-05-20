@@ -25,7 +25,13 @@ public class Atom<A> {
             TryEffect3<A, PreparedStatement, Index, Exception> f,
             Try2<ResultSet, Index, A, Exception> read) {
         this.setParam = f;
-        this.read = read;
+        this.read = (rs,index) -> {
+            try{
+                return read.f( rs,index );
+            }catch (Exception e){
+                throw new Exception( "Could not read value from resultset at index "+index.value+" / field "+rs.getMetaData().getColumnName( index.value ),e );
+            }
+        };
     }
 
     public static Atom<String> string =
@@ -39,12 +45,6 @@ public class Atom<A> {
                     (a, stmt, index) -> stmt.setInt( index.value, a ),
                     (rs, index) -> rs.getInt( index.value ) );
 
-
-    public static <A> Atom<Option<A>> maybe(Atom<A> aAtom){
-        return new Atom<>(
-                (maybeA, stmt, index) -> maybeA.foreachDoEffect( aAtom::set ),
-                (rs, index) -> rs.wasNull() ? Option.<A>none() : Option.fromNull( aAtom.read.f( rs, index ) ) );
-    }
 
     public static Atom<Instant> timestamp =
             new Atom<>(
@@ -79,9 +79,9 @@ public class Atom<A> {
         return new Atom<>( (b, stmt, index) -> setParam.f( g.f( b ), stmt, index ), (rs, index) -> f.f( read.f( rs, index ) ) );
     }
 
-    public static interface SetParam {
+    public interface SetParam {
 
-        public Validation<Exception, Unit> set(PreparedStatement stmt, Index index);
+        Validation<Exception, Unit> set(PreparedStatement stmt, Index index);
 
     }
 }

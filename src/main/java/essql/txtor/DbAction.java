@@ -88,6 +88,10 @@ public abstract class DbAction<A> {
             return DbAction.db( connx -> setParams( connx.prepareStatement( sql ), params ).executeUpdate() );
         }
 
+        public <A> DbAction<List<A>> query(F<ResultSet,A> mapper){
+
+        }
+
         public <A> DbAction<List<A>> query(Composite<A> comp) {
             return DbAction.dbV( connx -> {
                 try {
