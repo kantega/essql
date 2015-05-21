@@ -29,7 +29,7 @@ public class Atom<A> {
             try{
                 return read.f( rs,index );
             }catch (Exception e){
-                throw new Exception( "Could not read value from resultset at index "+index.value+" / field "+rs.getMetaData().getColumnName( index.value ),e );
+                throw new Exception( "Could not read value from resultset at index "+index.value+" / field "+rs.getMetaData().getColumnName( index.value ) + " : " + e.getMessage(),e );
             }
         };
     }
