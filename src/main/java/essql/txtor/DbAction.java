@@ -17,10 +17,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+/**
+ * A DbAction represents an operation on a jdbc connection. It an
+ * @param <A>
+ */
 public abstract class DbAction<A> {
 
 
-    public static <A> DbAction<A> db(Try1<Connection, A, Exception> f) {
+    /**
+     * Creates a DbAction around a function that creates an A from a Connection. The function might throw an Exeption.
+     * @param f
+     * @param <A>
+     * @return
+     */
+    static <A> DbAction<A> db(Try1<Connection, A, Exception> f) {
         return new DbAction<A>() {
             @Override public Validation<NonEmptyList<Exception>, A> run(Connection c) {
                 return Try.f( f ).f( c ).nel();
@@ -28,7 +38,13 @@ public abstract class DbAction<A> {
         };
     }
 
-    public static <A> DbAction<A> dbV(F<Connection, Validation<NonEmptyList<Exception>, A>> f) {
+    /**
+     * Creates a DbAction around a function that yields a Validation
+     * @param f
+     * @param <A>
+     * @return
+     */
+    static <A> DbAction<A> dbV(F<Connection, Validation<NonEmptyList<Exception>, A>> f) {
         return new DbAction<A>() {
             @Override public Validation<NonEmptyList<Exception>, A> run(Connection c) {
                 return f.f( c );
@@ -36,6 +52,12 @@ public abstract class DbAction<A> {
         };
     }
 
+    /**
+     * Creates a QueryBuilder that uses the provided sql to create a preparedstatement, and injects the SetParam values into the statement.
+     * @param sql The sql statement.
+     * @param setParams The values to inject into the preparedstatement
+     * @return A builder.
+     */
     public static QueryBuilder prepare(String sql, SetParam... setParams) {
         return new QueryBuilder( sql, setParams );
     }
@@ -48,9 +70,20 @@ public abstract class DbAction<A> {
         return stmt;
     }
 
+    /**
+     * Runs the action, invoking any sideeffects.
+     * @param c
+     * @return
+     */
     public abstract Validation<NonEmptyList<Exception>, A> run(Connection c);
 
 
+    /**
+     * Map the result of the action over the function f.
+     * @param f
+     * @param <B>
+     * @return
+     */
     public <B> DbAction<B> map(F<A, B> f) {
         return new DbAction<B>() {
             @Override public Validation<NonEmptyList<Exception>, B> run(Connection c) {
@@ -59,6 +92,12 @@ public abstract class DbAction<A> {
         };
     }
 
+    /**
+     * Binds the action to the next action that is produced by f.
+     * @param f
+     * @param <B>
+     * @return
+     */
     public <B> DbAction<B> bind(F<A, DbAction<B>> f) {
         return new DbAction<B>() {
             @Override public Validation<NonEmptyList<Exception>, B> run(Connection c) {
@@ -68,10 +107,17 @@ public abstract class DbAction<A> {
         };
     }
 
+    /**
+     * Ignore the output from the action
+     * @return
+     */
     public DbAction<Unit> drain() {
         return this.map( (A a) -> Unit.unit() );
     }
 
+    /**
+     * DSL to build a DbAction.
+     */
     public static class QueryBuilder {
 
         final String sql;
@@ -83,11 +129,20 @@ public abstract class DbAction<A> {
             this.params = params;
         }
 
-
+        /**
+         * Creates an update with PreparedStatement.executeUpdate()
+         * @return
+         */
         public DbAction<Integer> update() {
             return DbAction.db( connx -> setParams( connx.prepareStatement( sql ), params ).executeUpdate() );
         }
 
+        /**
+         * Queries the db with PreparedStatement.executeQuery(), using a mapper to translate one row to one A
+         * @param mapper a mapper that maps FROM ONE ROW to ONE A. Do not iterate through the resultset here.
+         * @param <A>
+         * @return an action the yields a List of A's
+         */
         public <A> DbAction<List<A>> query(Try1<ResultSet, A,Exception> mapper) {
             return DbAction.dbV( connx -> {
                 try {
@@ -117,6 +172,12 @@ public abstract class DbAction<A> {
             } );
         }
 
+        /**
+         * Queries the db with PreparedStatement.executeQuery(), using a composite to translate one row to one A
+         * @param comp A composite that maps rows to objects
+         * @param <A>
+         * @return an action the yields a List of A's
+         */
         public <A> DbAction<List<A>> query(Composite<A> comp) {
             return DbAction.dbV( connx -> {
                 try {

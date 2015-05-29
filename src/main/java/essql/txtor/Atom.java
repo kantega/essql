@@ -15,6 +15,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+/**
+ * A mapping from a column in a resultset to a type. Use {@see Field} to read values from a resultset with column name.
+ * @param <A>
+ */
 public class Atom<A> {
 
     private final TryEffect3<A, PreparedStatement, Index, Exception> setParam;
@@ -67,10 +71,21 @@ public class Atom<A> {
                 } );
     }
 
+    /**
+     * Reads a value of type A from a resultset.
+     * @param rs
+     * @param index
+     * @return
+     */
     public Validation<Exception, A> read(ResultSet rs, Index index) {
         return Try.f( read ).f( rs, index );
     }
 
+    /**
+     * Creates a SetParam that sets the value a in a preparedstatement.
+     * @param a
+     * @return
+     */
     public SetParam set(A a) {
         return (PreparedStatement stmt, Index index) -> TryEffect.f( setParam ).f( a, stmt, index );
     }

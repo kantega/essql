@@ -1,5 +1,8 @@
 package essql.txtor;
 
+/**
+ * Wraps a index.
+ */
 public class Index {
     public final int value;
 

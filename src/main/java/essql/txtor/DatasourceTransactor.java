@@ -11,6 +11,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 
+/**
+ * A transactor that uses a DataSorce to provide for connections.
+ */
 public class DatasourceTransactor extends Transactor {
 
     final DataSource ds;

@@ -12,6 +12,10 @@ import static essql.Products.*;
 import static fj.P.*;
 import static fj.P2.*;
 
+/**
+ * A mapper from a resulset row into an object of type A. It uses atoms to map individual fields. Composites can be composed with flatMap.
+ * @param <A>
+ */
 public class Composite<A> {
 
     final F2<ResultSet, Index, Validation<NonEmptyList<Exception>, P2<A, Index>>> f;
