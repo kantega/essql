@@ -131,7 +131,7 @@ public abstract class DbAction<A> {
 
         /**
          * Creates an update with PreparedStatement.executeUpdate()
-         * @return
+         * @return An action that performs an executeupdate on a preparestatement.
          */
         public DbAction<Integer> update() {
             return DbAction.db( connx -> setParams( connx.prepareStatement( sql ), params ).executeUpdate() );
@@ -140,7 +140,7 @@ public abstract class DbAction<A> {
         /**
          * Queries the db with PreparedStatement.executeQuery(), using a mapper to translate one row to one A
          * @param mapper a mapper that maps FROM ONE ROW to ONE A. Do not iterate through the resultset here.
-         * @param <A>
+         * @param <A> The type of the content the Action returns a list of.
          * @return an action the yields a List of A's
          */
         public <A> DbAction<List<A>> query(Try1<ResultSet, A,Exception> mapper) {
@@ -175,7 +175,7 @@ public abstract class DbAction<A> {
         /**
          * Queries the db with PreparedStatement.executeQuery(), using a composite to translate one row to one A
          * @param comp A composite that maps rows to objects
-         * @param <A>
+         * @param <A> The type of the content the Action returns a list of.
          * @return an action the yields a List of A's
          */
         public <A> DbAction<List<A>> query(Composite<A> comp) {

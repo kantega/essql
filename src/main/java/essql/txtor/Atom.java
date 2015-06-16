@@ -73,9 +73,9 @@ public class Atom<A> {
 
     /**
      * Reads a value of type A from a resultset.
-     * @param rs
-     * @param index
-     * @return
+     * @param rs The resultset the Atom reads from
+     * @param index The index of the column the Atom reads from
+     * @return A validation with either an exception or the translated value.
      */
     public Validation<Exception, A> read(ResultSet rs, Index index) {
         return Try.f( read ).f( rs, index );
@@ -83,8 +83,8 @@ public class Atom<A> {
 
     /**
      * Creates a SetParam that sets the value a in a preparedstatement.
-     * @param a
-     * @return
+     * @param a the value to set in the prepared statemement
+     * @return a SetParam instance that sets the param on the resultset.
      */
     public SetParam set(A a) {
         return (PreparedStatement stmt, Index index) -> TryEffect.f( setParam ).f( a, stmt, index );
