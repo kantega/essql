@@ -26,9 +26,9 @@ public abstract class DbAction<A> {
 
     /**
      * Creates a DbAction around a function that creates an A from a Connection. The function might throw an Exeption.
-     * @param f
-     * @param <A>
-     * @return
+     * @param f an effect that yields an A or throws an exception
+     * @param <A> The type of the returned value
+     * @return An action that runs the effect when a connection is obtained.
      */
     static <A> DbAction<A> db(Try1<Connection, A, Exception> f) {
         return new DbAction<A>() {
@@ -40,9 +40,9 @@ public abstract class DbAction<A> {
 
     /**
      * Creates a DbAction around a function that yields a Validation
-     * @param f
-     * @param <A>
-     * @return
+     * @param f an effect that yields a validation
+     * @param <A> The type of the result
+     * @return Am action that yields As
      */
     static <A> DbAction<A> dbV(F<Connection, Validation<NonEmptyList<Exception>, A>> f) {
         return new DbAction<A>() {
@@ -72,17 +72,17 @@ public abstract class DbAction<A> {
 
     /**
      * Runs the action, invoking any sideeffects.
-     * @param c
-     * @return
+     * @param c the connection to run the action on
+     * @return A validation with a list of failures or a result
      */
     public abstract Validation<NonEmptyList<Exception>, A> run(Connection c);
 
 
     /**
      * Map the result of the action over the function f.
-     * @param f
-     * @param <B>
-     * @return
+     * @param f The mapping function
+     * @param <B> The type the function yields
+     * @return A new action that applies f on result of the database action.
      */
     public <B> DbAction<B> map(F<A, B> f) {
         return new DbAction<B>() {
@@ -94,9 +94,9 @@ public abstract class DbAction<A> {
 
     /**
      * Binds the action to the next action that is produced by f.
-     * @param f
-     * @param <B>
-     * @return
+     * @param f A function that produces the next action
+     * @param <B> The type variable of the next action.
+     * @return A new action that runs both actions in sequence, yielding a B
      */
     public <B> DbAction<B> bind(F<A, DbAction<B>> f) {
         return new DbAction<B>() {
