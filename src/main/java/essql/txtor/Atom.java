@@ -16,8 +16,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 /**
- * A mapping from a column in a resultset to a type. Use {@see Field} to read values from a resultset with column name.
- * @param <A>
+ * A mapping from a column in a resultset to a type. Use @see Field to read values from a resultset with column name.
+ * @param <A> The type the atom maps to and from
  */
 public class Atom<A> {
 

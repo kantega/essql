@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 /**
  * A DbAction represents an operation on a jdbc connection. It an
- * @param <A>
+ * @param <A> The type the DbAction yields when run
  */
 public abstract class DbAction<A> {
 
@@ -109,7 +109,7 @@ public abstract class DbAction<A> {
 
     /**
      * Ignore the output from the action
-     * @return
+     * @return the same action but yielding Unit
      */
     public DbAction<Unit> drain() {
         return this.map( (A a) -> Unit.unit() );

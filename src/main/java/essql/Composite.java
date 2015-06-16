@@ -14,7 +14,7 @@ import static fj.P2.*;
 
 /**
  * A mapper from a resulset row into an object of type A. It uses atoms to map individual fields. Composites can be composed with flatMap.
- * @param <A>
+ * @param <A> The type the Composite maps to and from.
  */
 public class Composite<A> {
 
