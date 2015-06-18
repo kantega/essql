@@ -17,6 +17,7 @@ import java.time.Instant;
 
 /**
  * A mapping from a column in a resultset to a type. Use @see Field to read values from a resultset with column name.
+ *
  * @param <A> The type the atom maps to and from
  */
 public class Atom<A> {
@@ -29,11 +30,11 @@ public class Atom<A> {
             TryEffect3<A, PreparedStatement, Index, Exception> f,
             Try2<ResultSet, Index, A, Exception> read) {
         this.setParam = f;
-        this.read = (rs,index) -> {
-            try{
-                return read.f( rs,index );
-            }catch (Exception e){
-                throw new Exception( "Could not read value from resultset at index "+index.value+" / field "+rs.getMetaData().getColumnName( index.value ) + " : " + e.getMessage(),e );
+        this.read = (rs, index) -> {
+            try {
+                return read.f( rs, index );
+            } catch (Exception e) {
+                throw new Exception( "Could not read value from resultset at index " + index.value + " / field " + rs.getMetaData().getColumnName( index.value ) + " : " + e.getMessage(), e );
             }
         };
     }
@@ -60,6 +61,8 @@ public class Atom<A> {
                 (Option<A> maybeA, PreparedStatement stmt, Index index) -> {
                     if (maybeA.isSome())
                         atom.setParam.f( maybeA.some(), stmt, index );
+                    else
+                        atom.setParam.f( null, stmt, index );
                 },
                 (ResultSet rs, Index index) -> {
                     if (rs.getObject( index.getValue() ) != null) {
@@ -73,7 +76,8 @@ public class Atom<A> {
 
     /**
      * Reads a value of type A from a resultset.
-     * @param rs The resultset the Atom reads from
+     *
+     * @param rs    The resultset the Atom reads from
      * @param index The index of the column the Atom reads from
      * @return A validation with either an exception or the translated value.
      */
@@ -83,6 +87,7 @@ public class Atom<A> {
 
     /**
      * Creates a SetParam that sets the value a in a preparedstatement.
+     *
      * @param a the value to set in the prepared statemement
      * @return a SetParam instance that sets the param on the resultset.
      */
