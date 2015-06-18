@@ -1,9 +1,7 @@
 package essql.txtor;
 
-import fj.F;
-import fj.Try;
-import fj.TryEffect;
-import fj.Unit;
+import essql.Util;
+import fj.*;
 import fj.data.Option;
 import fj.data.Validation;
 import fj.function.Try2;

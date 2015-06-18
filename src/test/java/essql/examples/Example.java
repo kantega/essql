@@ -12,11 +12,13 @@ import essql.txtor.DbAction;
 import fj.Show;
 import fj.Unit;
 import fj.data.List;
+import fj.data.Option;
 import fj.data.Stream;
 import no.kantega.effect.Tried;
 import org.apache.commons.lang3.StringUtils;
 
 import static essql.Composite.comp;
+import static essql.examples.User.*;
 import static essql.examples.User.Channel.email;
 import static essql.examples.User.Channel.phone;
 import static essql.txtor.Atom.num;
@@ -48,7 +50,7 @@ public class Example {
                         str -> Stream.stream( StringUtils.split( str, ";" ) ).map( (String elem) -> elem.contains( "@" ) ? email( elem ) : phone( elem ) ).toList(),
                         channels -> Util.mkString( Channel.valueShow, channels, ";" ) );
 
-        User leif = new User( "Leif Haraldson", 34, list( email( "leif@tesgin.com" ), phone( "+47 30 24 04 55" ) ) );
+        User leif = User( "Leif Haraldson", 34, list( email( "leif@tesgin.com" ), phone( "+47 30 24 04 55" ) ) );
 
 
         DbAction<Integer> createTable = DbAction.prepare(
@@ -57,6 +59,7 @@ public class Example {
                         "name VARCHAR(255) NOT NULL," +
                         "channels TEXT NOT NULL," +
                         "age INT NOT NULL," +
+                        "maybeText VARCHAR(255), " +
                         "PRIMARY KEY(id)" +
                         ")" ).update();
 
@@ -67,8 +70,8 @@ public class Example {
                         .update();
 
         DbAction<List<User>> getUsers =
-                DbAction.prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
-                        .query( comp( string, num, channelAtom, User::new ) );
+                DbAction.prepare( "SELECT name,age,channels,maybeText FROM user WHERE name = ?", string.set( leif.name ) )
+                        .query( comp( string, num, channelAtom,Atom.optional( Atom.string ), User::new ) );
 
         tx.transact( createTable )
                 .flatMap( r -> tx.transact( addLeif ) )
@@ -80,14 +83,16 @@ public class Example {
         Composite<User> userComp =
                 comp( Atom.string ).flatMap(
                         name -> comp( Atom.num ).flatMap(
-                                age -> comp( channelAtom ).map(
-                                        channels -> new User( name, age, channels )
+                                age -> comp( channelAtom ).flatMap(
+                                        channels -> comp( Atom.optional( Atom.string ) ).map(
+                                                maybeText -> new User( name, age, channels, maybeText )
+                                        )
                                 )
                         )
                 );
 
         DbAction<List<User>> getUsersWithComp =
-                DbAction.prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
+                DbAction.prepare( "SELECT name,age,channels,maybeText FROM user WHERE name = ?", string.set( leif.name ) )
                         .query( userComp );
 
         tx.transact( getUsersWithComp )
@@ -105,12 +110,12 @@ public class Example {
 
         DbAction<List<User>> getUserWithMaualMapping =
                 DbAction
-                        .prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
+                        .prepare( "SELECT name,age,channels,maybeText FROM user WHERE name = ?", string.set( leif.name ) )
                         .query( rs -> {
                             String name = Field.readField( "name", Atom.string, rs );
                             int age = Field.readField( "age", Atom.num, rs );
                             List<Channel> channels = Field.readField( "channels", channelAtom, rs );
-                            return new User( name, age, channels );
+                            return User( name, age, channels );
                         } );
 
         tx.transact( getUserWithMaualMapping )
@@ -119,17 +124,33 @@ public class Example {
 
         DbAction<List<User>> faileingGetUserWithMaualMapping =
                 DbAction
-                        .prepare( "SELECT name,age,channels FROM user WHERE name = ?", string.set( leif.name ) )
+                        .prepare( "SELECT name,age,channels,maybeText FROM user WHERE name = ?", string.set( leif.name ) )
                         .query( rs -> {
                             String name = Field.readField( "name", Atom.string, rs );
                             int age = Field.readField( "name", Atom.num, rs );
                             List<Channel> channels = Field.readField( "channels", channelAtom, rs );
-                            return new User( name, age, channels );
+                            return User( name, age, channels );
                         } );
 
         tx.transact( faileingGetUserWithMaualMapping )
                 .map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
                 .execute( triedShow::println );
+
+
+        DbAction<Unit> updateNoText =
+                DbAction.prepare( "UPDATE user SET maybeText = ? WHERE age = 35", Atom.optional( Atom.string ).set( Option.<String>none() ) ).update().drain();
+
+        tx.transact( updateNoText.bind( u -> getUsers ) )
+                .map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
+                .execute( triedShow::println );
+
+        DbAction<Unit> updateText =
+                DbAction.prepare( "UPDATE user SET maybeText = ? WHERE age = 35", Atom.string.set( "Jalla" ) ).update().drain();
+
+        tx.transact( updateText.bind( u -> getUsers ) )
+                .map( (List<User> list) -> Show.listShow( Util.<User>reflectionShow() ).showS( list ) )
+                .execute( triedShow::println );
+
     }
 
 }

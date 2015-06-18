@@ -2,6 +2,7 @@ package essql.examples;
 
 import fj.Show;
 import fj.data.List;
+import fj.data.Option;
 
 public class User {
 
@@ -11,24 +12,36 @@ public class User {
 
     public final List<Channel> channels;
 
-    public User(String name, int age, List<Channel> channels) {
+    public final Option<String> mayebText;
+
+    public User(String name, int age, List<Channel> channels,Option<String> maybeText) {
         this.name = name;
         this.age = age;
         this.channels = channels;
+        this.mayebText = maybeText;
     }
 
-    public static interface Channel {
 
-        public final Show<Channel> valueShow =
+    public static User User(String name, int age, List<Channel> channel){
+        return new User(name,age,channel,Option.<String>none());
+    }
+
+    public User withText(String text){
+        return new User( name,age,channels,Option.fromNull( text ) );
+    }
+
+    public interface Channel {
+
+        Show<Channel> valueShow =
                 Show.stringShow.comap( Channel::stringValue );
 
-        public String stringValue();
+        String stringValue();
 
-        public static Channel email(String value) {
+        static Channel email(String value) {
             return new Email( value );
         }
 
-        public static Channel phone(String number) {
+        static Channel phone(String number) {
             return new Phone( number );
         }
     }
