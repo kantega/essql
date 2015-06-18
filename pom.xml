@@ -4,10 +4,11 @@
 
     <groupId>no.kantega</groupId>
     <artifactId>essql</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
     <scm>
         <connection>scm:git:git@github.com:kantega/essql.git</connection>
-    </scm>
+      <tag>essql-1.1</tag>
+  </scm>
     <dependencies>
         <dependency>
             <groupId>org.functionaljava</groupId>
