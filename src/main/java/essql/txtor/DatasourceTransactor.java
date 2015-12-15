@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.sql.Savepoint;
 
 /**
- * A transactor that uses a DataSorce to provide for connections.
+ * A transactor that uses a DataSource to provide for connections.
  */
 public class DatasourceTransactor extends Transactor {
 

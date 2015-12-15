@@ -12,13 +12,13 @@ public class User {
 
     public final List<Channel> channels;
 
-    public final Option<String> mayebText;
+    public final Option<String> maybeText;
 
     public User(String name, int age, List<Channel> channels,Option<String> maybeText) {
         this.name = name;
         this.age = age;
         this.channels = channels;
-        this.mayebText = maybeText;
+        this.maybeText = maybeText;
     }
 
 
@@ -33,7 +33,7 @@ public class User {
     public interface Channel {
 
         Show<Channel> valueShow =
-                Show.stringShow.comap( Channel::stringValue );
+                Show.stringShow.contramap( Channel::stringValue );
 
         String stringValue();
 

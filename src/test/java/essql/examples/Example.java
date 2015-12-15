@@ -43,7 +43,7 @@ public class Example {
         DatasourceTransactor tx = new DatasourceTransactor( ds );
 
         Show<Tried<?>> triedShow =
-                Show.stringShow.comap( (Tried<?> tried) -> tried.fold( Throwable::getMessage, Object::toString ) );
+                Show.stringShow.contramap( (Tried<?> tried) -> tried.fold( Throwable::getMessage, Object::toString ) );
 
         Atom<List<Channel>> channelAtom =
                 string.xmap(
