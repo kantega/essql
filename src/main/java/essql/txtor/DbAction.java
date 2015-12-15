@@ -29,7 +29,7 @@ public abstract class DbAction<A> {
      * @param <A> The type of the returned value
      * @return An action that runs the effect when a connection is obtained.
      */
-    static <A> DbAction<A> db(Try1<Connection, A, Exception> f) {
+    public static <A> DbAction<A> db(Try1<Connection, A, Exception> f) {
         return new DbAction<A>() {
             @Override
             public Validation<NonEmptyList<Exception>, A> run(Connection c) {
@@ -45,7 +45,7 @@ public abstract class DbAction<A> {
      * @param <A> The type of the result
      * @return Am action that yields As
      */
-    static <A> DbAction<A> dbV(F<Connection, Validation<NonEmptyList<Exception>, A>> f) {
+    public static <A> DbAction<A> dbV(F<Connection, Validation<NonEmptyList<Exception>, A>> f) {
         return new DbAction<A>() {
             @Override
             public Validation<NonEmptyList<Exception>, A> run(Connection c) {
@@ -66,7 +66,7 @@ public abstract class DbAction<A> {
     }
 
 
-    private static PreparedStatement setParams(PreparedStatement stmt, SetParam[] params) {
+    public static PreparedStatement setParams(PreparedStatement stmt, SetParam[] params) {
         for (int i = 0; i < params.length; i++) {
             params[i].set(stmt, new Index(i + 1));
         }
