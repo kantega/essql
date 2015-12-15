@@ -26,13 +26,13 @@ public abstract class DbAction<A> {
      * Creates a DbAction around a function that creates an A from a Connection. The function might throw an Exeption.
      *
      * @param f   an effect that yields an A or throws an exception
-     * @param <A> The type of the returned value
+     * @param <T> The type of the returned value
      * @return An action that runs the effect when a connection is obtained.
      */
-    public static <A> DbAction<A> db(Try1<Connection, A, Exception> f) {
-        return new DbAction<A>() {
+    public static <T> DbAction<T> db(Try1<Connection, T, Exception> f) {
+        return new DbAction<T>() {
             @Override
-            public Validation<NonEmptyList<Exception>, A> run(Connection c) {
+            public Validation<NonEmptyList<Exception>, T> run(Connection c) {
                 return Try.f(f).f(c).nel();
             }
         };
