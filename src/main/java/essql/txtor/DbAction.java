@@ -155,7 +155,7 @@ public abstract class DbAction<A> {
         public DbAction<List<Long>> insertGetKeys() {
             return DbAction.db(connx -> {
                 PreparedStatement stmt = setParams(connx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS), params);
-                stmt.execute();Small bug in
+                stmt.execute();
                 ResultSet rs = stmt.getGeneratedKeys();
                 ArrayList<Long> keys = new ArrayList<>();
                 while(rs.next()){
