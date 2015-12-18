@@ -18,9 +18,9 @@ import no.kantega.effect.Tried;
 import org.apache.commons.lang3.StringUtils;
 
 import static essql.Composite.comp;
-import static essql.examples.User.*;
 import static essql.examples.User.Channel.email;
 import static essql.examples.User.Channel.phone;
+import static essql.examples.User.User;
 import static essql.txtor.Atom.num;
 import static essql.txtor.Atom.string;
 import static fj.data.List.list;
