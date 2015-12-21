@@ -12,9 +12,9 @@ public class User {
 
     public final List<Channel> channels;
 
-    public final Option<String> maybeText;
+    public final Option<Comment> maybeText;
 
-    public User(String name, int age, List<Channel> channels,Option<String> maybeText) {
+    public User(String name, int age, List<Channel> channels,Option<Comment> maybeText) {
         this.name = name;
         this.age = age;
         this.channels = channels;
@@ -23,10 +23,10 @@ public class User {
 
 
     public static User User(String name, int age, List<Channel> channel){
-        return new User(name,age,channel,Option.<String>none());
+        return new User(name,age,channel,Option.<Comment>none());
     }
 
-    public User withText(String text){
+    public User withText(Comment text){
         return new User( name,age,channels,Option.fromNull( text ) );
     }
 
@@ -56,6 +56,11 @@ public class User {
         @Override public String stringValue() {
             return address;
         }
+
+        @Override
+        public String toString() {
+            return "Email("+stringValue()+")";
+        }
     }
 
     public static class Phone implements Channel {
@@ -67,6 +72,28 @@ public class User {
 
         @Override public String stringValue() {
             return number;
+        }
+
+        @Override
+        public String toString() {
+            return "Phone("+stringValue()+")";
+        }
+    }
+
+    public static class Comment{
+        public final String value;
+
+        public Comment(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return "Comment("+value+")";
         }
     }
 }
