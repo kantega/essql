@@ -30,46 +30,45 @@ public class Atom<A> {
         this.setParam = f;
         this.read = (rs, index) -> {
             try {
-                return read.f( rs, index );
+                return read.f(rs, index);
             } catch (Exception e) {
-                throw new Exception( "Could not read value from resultset at index " + index.value + " / field " + rs.getMetaData().getColumnName( index.value ) + " : " + e.getMessage(), e );
+                throw new Exception("Could not read value from resultset at index " + index.value + " / field " + rs.getMetaData().getColumnName(index.value) + " : " + e.getMessage(), e);
             }
         };
     }
 
     public static Atom<String> string =
             new Atom<>(
-                    (a, stmt, index) -> stmt.setString( index.value, a ),
-                    (rs, index) -> rs.getString( index.value ) );
+                    (a, stmt, index) -> stmt.setString(index.value, a),
+                    (rs, index) -> rs.getString(index.value));
 
 
     public static Atom<Integer> num =
             new Atom<>(
-                    (a, stmt, index) -> stmt.setInt( index.value, a ),
-                    (rs, index) -> rs.getInt( index.value ) );
+                    (a, stmt, index) -> stmt.setInt(index.value, a),
+                    (rs, index) -> rs.getInt(index.value));
 
 
     public static Atom<Instant> timestamp =
             new Atom<>(
-                    (a, stmt, index) -> stmt.setTimestamp( index.value, new Timestamp( a.toEpochMilli() ) ),
-                    (rs, index) -> rs.getTimestamp( index.value ).toInstant() );
+                    (a, stmt, index) -> stmt.setTimestamp(index.value, new Timestamp(a.toEpochMilli())),
+                    (rs, index) -> rs.getTimestamp(index.value).toInstant());
 
     public static <A> Atom<Option<A>> optional(Atom<A> atom) {
         return new Atom<>(
                 (Option<A> maybeA, PreparedStatement stmt, Index index) -> {
                     if (maybeA.isSome())
-                        atom.setParam.f( maybeA.some(), stmt, index );
+                        atom.setParam.f(maybeA.some(), stmt, index);
                     else
-                        atom.setParam.f( null, stmt, index );
+                        atom.setParam.f(null, stmt, index);
                 },
                 (ResultSet rs, Index index) -> {
-                    if (rs.getObject( index.getValue() ) != null) {
-                        return Option.some( atom.read.f( rs, index ) );
-                    }
-                    else
+                    if (rs.getObject(index.getValue()) != null) {
+                        return Option.some(atom.read.f(rs, index));
+                    } else
                         return Option.none();
 
-                } );
+                });
     }
 
     /**
@@ -80,7 +79,7 @@ public class Atom<A> {
      * @return A validation with either an exception or the translated value.
      */
     public Validation<Exception, A> read(ResultSet rs, Index index) {
-        return Try.f( read ).f( rs, index );
+        return Try.f(read).f(rs, index);
     }
 
     /**
@@ -90,11 +89,11 @@ public class Atom<A> {
      * @return a SetParam instance that sets the param on the resultset.
      */
     public SetParam set(A a) {
-        return (PreparedStatement stmt, Index index) -> TryEffect.f( setParam ).f( a, stmt, index );
+        return (PreparedStatement stmt, Index index) -> TryEffect.f(setParam).f(a, stmt, index);
     }
 
     public <B> Atom<B> xmap(F<A, B> f, F<B, A> g) {
-        return new Atom<>( (b, stmt, index) -> setParam.f( g.f( b ), stmt, index ), (rs, index) -> f.f( read.f( rs, index ) ) );
+        return new Atom<>((b, stmt, index) -> setParam.f(b == null ? null : g.f(b), stmt, index), (rs, index) -> f.f(read.f(rs, index)));
     }
 
     public interface SetParam {
