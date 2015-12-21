@@ -11,9 +11,11 @@ import essql.txtor.DatasourceTransactor;
 import essql.txtor.DbAction;
 import fj.Show;
 import fj.Unit;
+import fj.control.parallel.Strategy;
 import fj.data.List;
 import fj.data.Option;
 import fj.data.Stream;
+import no.kantega.concurrent.Task;
 import no.kantega.effect.Tried;
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,6 +29,7 @@ import static fj.data.List.list;
 
 public class Example {
     public static void main(String[] args) throws InterruptedException {
+        Task.defaultStrategy = Strategy.seqStrategy();
 
         HikariConfig config = new HikariConfig();
         config.setDriverClassName("org.h2.Driver");
@@ -83,7 +86,6 @@ public class Example {
                 .map((List<User> list) -> Show.listShow(Util.<User>reflectionShow()).showS(list))
                 .execute(prepend("* Creating table, adding one user, fetching the user and printing the results\n", triedShow)::println);
 
-        Thread.sleep(1000);
 
         Composite<User> userComp =
                 comp(Atom.string).flatMap(
